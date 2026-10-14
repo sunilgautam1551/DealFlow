@@ -27,7 +27,10 @@ export function App() {
   return (
     <div className="app">
       <header className="app-header">
-        <h1>DealFlow</h1>
+        <h1 className="app-brand">
+          <img src="/favicon.png" alt="HighLevel" width={24} height={24} />
+          DealFlow
+        </h1>
         <SaveStatus />
         <span className="push-right muted">Signed in as {userName(CURRENT_USER_ID)}</span>
         <button type="button" onClick={() => dispatch(simulatorToggled())}>
