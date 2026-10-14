@@ -21,8 +21,7 @@ export function buildVisibleIds(
   filters: ViewFilters,
   now: number,
 ): string[] {
-  const search = filters.search.trim().toLowerCase();
-  const matching = deals.filter((deal) => matchesFilters(deal, pending[deal.id], filters, search, now));
+  const matching = filterDeals(deals, pending, filters, now);
 
   // Compute each sort key once, not once per comparison.
   const sortValue = SORT_VALUES[filters.sort];
@@ -30,6 +29,17 @@ export function buildVisibleIds(
   keyed.sort((a, b) => a.key - b.key || (a.id < b.id ? -1 : 1));
 
   return keyed.map((item) => item.id);
+}
+
+/** The deals that belong in the view, unsorted. */
+export function filterDeals(
+  deals: Deal[],
+  pending: Record<string, PendingChange>,
+  filters: ViewFilters,
+  now: number,
+): Deal[] {
+  const search = filters.search.trim().toLowerCase();
+  return deals.filter((deal) => matchesFilters(deal, pending[deal.id], filters, search, now));
 }
 
 /**

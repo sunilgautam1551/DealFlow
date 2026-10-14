@@ -5,6 +5,7 @@ import type { StageId } from './stages';
  * produces a new object with a higher `version`.
  */
 export interface Deal {
+  /** Integer-like string, e.g. "42" (see `formatDealId` for why). */
   id: string;
   company: string;
   licences: number;

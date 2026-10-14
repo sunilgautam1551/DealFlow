@@ -55,6 +55,22 @@
   box-shadow: inset 3px 0 0 var(--color-accent);
 }
 
+/* A teammate just changed this deal. */
+.row[data-flash] {
+  animation: flash 2s ease-out;
+}
+
+@keyframes flash {
+  from {
+    background: var(--color-warning-soft);
+  }
+}
+
+/* No longer belongs in this view (kept until the user refreshes). */
+.row[data-moved-away] > :not(:last-child) {
+  opacity: 0.45;
+}
+
 .numeric {
   text-align: right;
   font-variant-numeric: tabular-nums;

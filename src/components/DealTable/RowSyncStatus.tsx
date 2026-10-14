@@ -6,7 +6,7 @@ import { discardChanges, retryChanges } from '../../features/sync/syncThunks';
 import styles from './DealTable.module.css';
 
 interface RowSyncStatusProps {
-  change: PendingChange | undefined;
+  change: PendingChange;
 }
 
 /**
@@ -15,7 +15,6 @@ interface RowSyncStatusProps {
  */
 export function RowSyncStatus({ change }: RowSyncStatusProps) {
   const dispatch = useAppDispatch();
-  if (!change) return null;
 
   const ids = [change.dealId];
   // Buttons sit inside a clickable row: don't let the click also focus/select the row.

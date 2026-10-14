@@ -7,8 +7,10 @@ import { FilterBar } from './components/FilterBar/FilterBar';
 import { PipelineTabs } from './components/PipelineTabs/PipelineTabs';
 import { SyncStatus } from './components/SyncStatus/SyncStatus';
 import { Toasts } from './components/Toasts/Toasts';
+import { UpdatesBanner } from './components/UpdatesBanner/UpdatesBanner';
 import { CURRENT_USER_ID, userName } from './domain/users';
 import { selectLoadStatus } from './features/deals/dealsSlice';
+import { connectRealtime } from './features/realtime/realtimeThunks';
 import { loadPipeline } from './features/view/viewThunks';
 import styles from './App.module.css';
 
@@ -17,8 +19,12 @@ export function App() {
   const dispatch = useAppDispatch();
   const loadStatus = useAppSelector(selectLoadStatus);
 
+  // Connect the realtime feed *before* loading, so no change made during the
+  // load is missed. The deals slice keeps whichever version is newer.
   useEffect(() => {
+    const disconnect = dispatch(connectRealtime());
     void dispatch(loadPipeline());
+    return disconnect;
   }, [dispatch]);
 
   return (
@@ -35,6 +41,7 @@ export function App() {
           <FilterBar />
           <ActionBar />
           <BulkProgress />
+          <UpdatesBanner />
           <DealTable />
         </main>
       ) : (

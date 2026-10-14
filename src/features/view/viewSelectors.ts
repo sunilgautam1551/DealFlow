@@ -4,6 +4,7 @@ import { isClosedStage, STAGE_IDS, type StageId } from '../../domain/stages';
 import { CURRENT_USER_ID } from '../../domain/users';
 import { selectAllDeals } from '../deals/dealsSlice';
 import { selectPending } from '../sync/syncSelectors';
+import { filterDeals } from './buildVisibleIds';
 
 export const selectFilters = (state: RootState) => state.view.filters;
 export const selectVisibleIds = (state: RootState) => state.view.visibleIds;
@@ -48,3 +49,33 @@ export function selectActionTargets(state: RootState): string[] {
   if (selected.length > 0) return selected;
   return state.view.focusedId ? [state.view.focusedId] : [];
 }
+
+export interface UnseenChanges {
+  /** Deals that now belong in this view but are not on screen (e.g. new leads). */
+  added: number;
+  /** Deals on screen that no longer belong here (e.g. a teammate moved them). */
+  removed: number;
+}
+
+/**
+ * How far the list on screen has drifted from live data.
+ *
+ * The list is a snapshot (see `ViewState.visibleIds`), so teammates' changes
+ * don't move rows under the user's cursor. Instead the user sees a count and
+ * chooses when to refresh. Only filters, no sorting, so it stays cheap enough
+ * to rerun on every realtime batch.
+ */
+export const selectUnseenChanges = createSelector(
+  [selectAllDeals, selectPending, selectFilters, selectBuiltAt, selectVisibleIds],
+  (deals, pending, filters, builtAt, visibleIds): UnseenChanges => {
+    const liveIds = new Set(filterDeals(deals, pending, filters, builtAt).map((deal) => deal.id));
+    const shownIds = new Set(visibleIds);
+
+    let added = 0;
+    for (const id of liveIds) if (!shownIds.has(id)) added += 1;
+    let removed = 0;
+    for (const id of shownIds) if (!liveIds.has(id)) removed += 1;
+
+    return { added, removed };
+  },
+);

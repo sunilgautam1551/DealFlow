@@ -3,14 +3,16 @@ import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { formatCurrency, formatDaysAgo, formatDueIn, formatNumber } from '../../domain/format';
 import { assessPriority } from '../../domain/priority';
 import { stageLabel } from '../../domain/stages';
-import { CURRENT_USER_ID, userName } from '../../domain/users';
+import { CURRENT_USER_ID, displayActor, userName } from '../../domain/users';
 import { selectDealById } from '../../features/deals/dealsSlice';
 import { selectIsSelected } from '../../features/selection/selectionSlice';
 import { selectRangeTo, toggleSelection } from '../../features/selection/selectionThunks';
 import { selectPendingChange } from '../../features/sync/syncSelectors';
-import { selectBuiltAt } from '../../features/view/viewSelectors';
+import { stageFitsTab } from '../../features/view/buildVisibleIds';
+import { selectBuiltAt, selectFilters } from '../../features/view/viewSelectors';
 import { focusChanged } from '../../features/view/viewSlice';
 import { RowSyncStatus } from './RowSyncStatus';
+import { useTeammateFlash } from './useTeammateFlash';
 import styles from './DealTable.module.css';
 
 /** DOM id for a row, referenced by the grid's `aria-activedescendant`. */
@@ -37,11 +39,16 @@ export const DealRow = memo(function DealRow({ id, rowIndex, top, isFocused }: D
   const change = useAppSelector((state) => selectPendingChange(state, id));
   const isSelected = useAppSelector((state) => selectIsSelected(state, id));
   const now = useAppSelector(selectBuiltAt);
+  const tab = useAppSelector(selectFilters).tab;
+  const flashing = useTeammateFlash(deal);
 
   if (!deal) return null;
 
   // Show the user's unsaved move rather than the server stage.
   const stage = change?.toStage ?? deal.stage;
+  // A teammate moved this deal off the current tab. It stays (dimmed) until the
+  // user refreshes the list, so rows never vanish under the cursor.
+  const movedAway = !stageFitsTab(stage, tab);
   const { reasons } = assessPriority({ ...deal, stage }, now);
 
   const handleRowClick = (event: React.MouseEvent) => {
@@ -59,6 +66,8 @@ export const DealRow = memo(function DealRow({ id, rowIndex, top, isFocused }: D
       className={styles.row}
       data-focused={isFocused || undefined}
       data-selected={isSelected || undefined}
+      data-flash={flashing || undefined}
+      data-moved-away={movedAway || undefined}
       style={{ transform: `translateY(${top}px)` }}
       onClick={handleRowClick}
     >
@@ -98,7 +107,15 @@ export const DealRow = memo(function DealRow({ id, rowIndex, top, isFocused }: D
         ))}
       </span>
       <span role="gridcell" className={styles.status}>
-        <RowSyncStatus change={change} />
+        {change ? (
+          <RowSyncStatus change={change} />
+        ) : (
+          movedAway && (
+            <span className={styles.muted}>
+              Moved to {stageLabel(deal.stage)} by {displayActor(deal.updatedBy)}
+            </span>
+          )
+        )}
       </span>
     </div>
   );

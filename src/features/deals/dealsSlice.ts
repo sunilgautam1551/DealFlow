@@ -1,4 +1,10 @@
-import { createAsyncThunk, createEntityAdapter, createSlice, type EntityState } from '@reduxjs/toolkit';
+import {
+  createAsyncThunk,
+  createEntityAdapter,
+  createSlice,
+  type EntityState,
+  type PayloadAction,
+} from '@reduxjs/toolkit';
 import type { ThunkExtra } from '../../app/dependencies';
 import type { RootState } from '../../app/rootReducer';
 import type { Deal } from '../../domain/deal';
@@ -38,14 +44,25 @@ function storeIfNewer(state: EntityState<Deal, string>, deals: Deal[]): void {
 const dealsSlice = createSlice({
   name: 'deals',
   initialState,
-  reducers: {},
+  reducers: {
+    /** Changes pushed by the server's realtime feed (teammates' edits, and echoes of our own saves). */
+    dealsReceived(state, action: PayloadAction<Deal[]>) {
+      storeIfNewer(state, action.payload);
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(loadDeals.pending, (state) => {
         state.loadStatus = 'loading';
       })
       .addCase(loadDeals.fulfilled, (state, action) => {
-        dealsAdapter.setAll(state, action.payload);
+        // The realtime feed is connected before loading, so a push may already
+        // hold a newer version than the (slightly older) full load. Keep the newer one.
+        const deals = action.payload.map((deal) => {
+          const existing = state.entities[deal.id];
+          return existing && existing.version > deal.version ? existing : deal;
+        });
+        dealsAdapter.setAll(state, deals);
         state.loadStatus = 'ready';
       })
       .addCase(loadDeals.rejected, (state) => {
@@ -59,6 +76,7 @@ const dealsSlice = createSlice({
   },
 });
 
+export const { dealsReceived } = dealsSlice.actions;
 export default dealsSlice.reducer;
 
 // --- Selectors ----------------------------------------------------------------
