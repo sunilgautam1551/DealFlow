@@ -1,6 +1,8 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useEffect, useRef } from 'react';
-import { useAppSelector } from '../../app/hooks';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { selectSelectedCount } from '../../features/selection/selectionSlice';
+import { clearSelection, selectAllVisible } from '../../features/selection/selectionThunks';
 import { selectFocusedId, selectVisibleIds } from '../../features/view/viewSelectors';
 import { DealRow, rowElementId } from './DealRow';
 import styles from './DealTable.module.css';
@@ -19,7 +21,9 @@ const ROW_HEIGHT = 44;
  * `aria-activedescendant`, which works even though most rows are not rendered.
  */
 export function DealTable() {
+  const dispatch = useAppDispatch();
   const ids = useAppSelector(selectVisibleIds);
+  const selectedCount = useAppSelector(selectSelectedCount);
   const focusedId = useAppSelector(selectFocusedId);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -48,9 +52,21 @@ export function DealTable() {
       aria-label="Deals"
       aria-rowcount={ids.length + 1}
       aria-activedescendant={focusedId ? rowElementId(focusedId) : undefined}
+      aria-multiselectable
       tabIndex={0}
     >
       <div className={`${styles.row} ${styles.header}`} role="row" aria-rowindex={1}>
+        <span role="columnheader">
+          <input
+            type="checkbox"
+            aria-label="Select all deals in this view"
+            checked={selectedCount > 0 && selectedCount === ids.length}
+            ref={(box) => {
+              if (box) box.indeterminate = selectedCount > 0 && selectedCount < ids.length;
+            }}
+            onChange={() => dispatch(selectedCount > 0 ? clearSelection() : selectAllVisible())}
+          />
+        </span>
         <span role="columnheader">Company</span>
         <span role="columnheader">Stage</span>
         <span role="columnheader" className={styles.numeric}>
@@ -60,6 +76,7 @@ export function DealTable() {
         <span role="columnheader">Expected close</span>
         <span role="columnheader">Last contact</span>
         <span role="columnheader">Why it matters</span>
+        <span role="columnheader">Save status</span>
       </div>
 
       <div className={styles.body} style={{ height: virtualizer.getTotalSize() }}>

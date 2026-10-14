@@ -1,6 +1,7 @@
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { formatCompactCurrency, formatNumber } from '../../domain/format';
 import { STAGES } from '../../domain/stages';
+import { selectSyncSummary } from '../../features/sync/syncSelectors';
 import { selectFilters, selectTabCounts } from '../../features/view/viewSelectors';
 import type { ViewTab } from '../../features/view/viewSlice';
 import { updateFilters } from '../../features/view/viewThunks';
@@ -12,16 +13,19 @@ interface TabItem {
   count: number;
   /** Optional second line, e.g. the stage's total value. */
   detail?: string;
+  /** Highlight the tab (used when saves need the user's decision). */
+  alert?: boolean;
 }
 
 /**
- * One tab per stage plus "Today" and "All". Each stage tab shows its deal
+ * One tab per stage plus "Today", "All" and "Needs attention". Each stage tab shows its deal
  * count and value, so the tab row doubles as a pipeline overview.
  */
 export function PipelineTabs() {
   const dispatch = useAppDispatch();
   const activeTab = useAppSelector(selectFilters).tab;
   const counts = useAppSelector(selectTabCounts);
+  const { failed, conflicts } = useAppSelector(selectSyncSummary);
 
   const tabs: TabItem[] = [
     { id: 'today', label: 'Today', count: counts.today, detail: 'My priorities' },
@@ -32,6 +36,13 @@ export function PipelineTabs() {
       detail: formatCompactCurrency(counts.byStage[stage.id].value),
     })),
     { id: 'all', label: 'All deals', count: counts.all },
+    {
+      id: 'attention',
+      label: 'Needs attention',
+      count: failed + conflicts,
+      detail: 'Unsaved changes',
+      alert: failed + conflicts > 0,
+    },
   ];
 
   return (
@@ -43,6 +54,7 @@ export function PipelineTabs() {
           role="tab"
           aria-selected={tab.id === activeTab}
           className={styles.tab}
+          data-alert={tab.alert || undefined}
           onClick={() => dispatch(updateFilters({ tab: tab.id }))}
         >
           <span className={styles.label}>

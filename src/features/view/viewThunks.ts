@@ -7,7 +7,7 @@ import { filtersChanged, visibleIdsReplaced, type ViewFilters } from './viewSlic
 export const refreshView = (): AppThunk => (dispatch, getState) => {
   const state = getState();
   const now = Date.now();
-  const ids = buildVisibleIds(selectAllDeals(state), state.view.filters, now);
+  const ids = buildVisibleIds(selectAllDeals(state), state.sync.pending, state.view.filters, now);
   dispatch(visibleIdsReplaced({ ids, builtAt: now }));
 };
 

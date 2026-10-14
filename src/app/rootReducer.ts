@@ -1,5 +1,8 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import dealsReducer from '../features/deals/dealsSlice';
+import notificationsReducer from '../features/notifications/notificationsSlice';
+import selectionReducer from '../features/selection/selectionSlice';
+import syncReducer from '../features/sync/syncSlice';
 import uiReducer from '../features/ui/uiSlice';
 import viewReducer from '../features/view/viewSlice';
 
@@ -8,8 +11,13 @@ import viewReducer from '../features/view/viewSlice';
  * to this object; `RootState` updates automatically.
  */
 export const rootReducer = combineReducers({
+  /** Server truth: deals as the server last reported them. */
   deals: dealsReducer,
+  /** The user's unsaved changes, layered on top of `deals`. */
+  sync: syncReducer,
   view: viewReducer,
+  selection: selectionReducer,
+  notifications: notificationsReducer,
   ui: uiReducer,
 });
 

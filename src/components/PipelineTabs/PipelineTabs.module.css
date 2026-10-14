@@ -39,3 +39,9 @@
   color: var(--color-text-muted);
   font-weight: normal;
 }
+
+.tab[data-alert] .label,
+.tab[data-alert] .count {
+  color: var(--color-danger);
+  font-weight: 600;
+}
