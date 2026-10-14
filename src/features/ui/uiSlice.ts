@@ -3,11 +3,11 @@ import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 /**
  * UI chrome state: which dialog/drawer is open.
  *
- * Kept in Redux (rather than component state) because keyboard shortcuts,
- * toolbar buttons and toasts all need to open/close the same dialogs.
+ * Kept in Redux (rather than component state) because the keyboard handler
+ * and toolbar buttons need to open/close the same dialogs.
  */
 
-export type DialogId = 'move' | 'help';
+export type DialogId = 'move';
 
 export interface UiState {
   /** The modal dialog currently open, if any. Only one modal at a time. */

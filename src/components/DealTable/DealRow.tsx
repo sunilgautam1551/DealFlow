@@ -75,6 +75,8 @@ export const DealRow = memo(function DealRow({ id, rowIndex, top, isFocused }: D
         <input
           type="checkbox"
           aria-label={`Select ${deal.company}`}
+          // Not a Tab stop: the list handles keys itself (Space ticks the focused row).
+          tabIndex={-1}
           checked={isSelected}
           // Handled in onClick (not onChange) so we can read the Shift key for range selection.
           readOnly

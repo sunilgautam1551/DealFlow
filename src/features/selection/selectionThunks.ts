@@ -1,5 +1,6 @@
 import type { AppThunk } from '../../app/store';
 import { focusChanged } from '../view/viewSlice';
+import { moveFocus } from '../view/viewThunks';
 import { selectionAdded, selectionCleared, selectionToggled } from './selectionSlice';
 
 /** Click on a checkbox: tick/untick one deal. */
@@ -36,3 +37,21 @@ export const selectAllVisible = (): AppThunk => (dispatch, getState) => {
 export const clearSelection = (): AppThunk => (dispatch) => {
   dispatch(selectionCleared());
 };
+
+/** Space: tick/untick the focused row. */
+export const toggleFocusedSelection = (): AppThunk => (dispatch, getState) => {
+  const { focusedId } = getState().view;
+  if (focusedId) dispatch(selectionToggled(focusedId));
+};
+
+/** Shift+↑/↓: tick the focused row and the next one, then move focus there. */
+export const extendSelection =
+  (delta: number): AppThunk =>
+  (dispatch, getState) => {
+    const startId = getState().view.focusedId;
+    if (!startId) return;
+    dispatch(selectionAdded([startId]));
+    dispatch(moveFocus(delta));
+    const endId = getState().view.focusedId;
+    if (endId) dispatch(selectionAdded([endId]));
+  };

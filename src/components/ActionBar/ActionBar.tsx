@@ -60,6 +60,11 @@ export function ActionBar() {
         </>
       )}
 
+      <span className={styles.hint}>
+        In the list: <kbd>↑</kbd> <kbd>↓</kbd> move · <kbd>Space</kbd> select · <kbd>Shift</kbd>+<kbd>↑</kbd>
+        <kbd>↓</kbd> select range · <kbd>Enter</kbd> move to stage · <kbd>Esc</kbd> clear
+      </span>
+
       <span className={styles.selection}>
         {selectedCount < visibleCount && (
           <button type="button" onClick={() => dispatch(selectAllVisible())}>

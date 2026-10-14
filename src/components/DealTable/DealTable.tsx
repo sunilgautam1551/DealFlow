@@ -1,9 +1,16 @@
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useEffect, useRef } from 'react';
+import { openMoveDialog } from '../../app/commands';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { selectSelectedCount } from '../../features/selection/selectionSlice';
-import { clearSelection, selectAllVisible } from '../../features/selection/selectionThunks';
+import {
+  clearSelection,
+  extendSelection,
+  selectAllVisible,
+  toggleFocusedSelection,
+} from '../../features/selection/selectionThunks';
 import { selectFocusedId, selectVisibleIds } from '../../features/view/viewSelectors';
+import { focusEdge, moveFocus } from '../../features/view/viewThunks';
 import { DealRow, rowElementId } from './DealRow';
 import styles from './DealTable.module.css';
 
@@ -17,7 +24,9 @@ const ROW_HEIGHT = 44;
  * DOM, so scrolling stays smooth with 10,000+ rows. Each row subscribes to its
  * own deal, so a change to one deal re-renders one row.
  *
- * Accessibility: a `grid` whose focused row is announced via
+ * Keyboard: the list is one Tab stop. Inside it, ↑/↓ move between rows
+ * (Home/End jump), Space ticks a row, Shift+↑/↓ ticks a range, Enter opens
+ * "Move to…", Esc clears the selection. The focused row is announced via
  * `aria-activedescendant`, which works even though most rows are not rendered.
  */
 export function DealTable() {
@@ -40,6 +49,38 @@ export function DealTable() {
     if (index >= 0) virtualizer.scrollToIndex(index);
   }, [focusedId, ids, virtualizer]);
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    // Buttons inside rows (Retry, Keep mine…) keep their normal Enter/Space behaviour.
+    if (event.target instanceof HTMLButtonElement) return;
+
+    switch (event.key) {
+      case 'ArrowDown':
+        dispatch(event.shiftKey ? extendSelection(1) : moveFocus(1));
+        break;
+      case 'ArrowUp':
+        dispatch(event.shiftKey ? extendSelection(-1) : moveFocus(-1));
+        break;
+      case 'Home':
+        dispatch(focusEdge('first'));
+        break;
+      case 'End':
+        dispatch(focusEdge('last'));
+        break;
+      case ' ':
+        dispatch(toggleFocusedSelection());
+        break;
+      case 'Enter':
+        dispatch(openMoveDialog());
+        break;
+      case 'Escape':
+        dispatch(clearSelection());
+        break;
+      default:
+        return;
+    }
+    event.preventDefault(); // e.g. stop Space/arrows from also scrolling the page
+  };
+
   if (ids.length === 0) {
     return <div className={styles.empty}>No deals match this view.</div>;
   }
@@ -54,6 +95,7 @@ export function DealTable() {
       aria-activedescendant={focusedId ? rowElementId(focusedId) : undefined}
       aria-multiselectable
       tabIndex={0}
+      onKeyDown={handleKeyDown}
     >
       <div className={`${styles.row} ${styles.header}`} role="row" aria-rowindex={1}>
         <span role="columnheader">

@@ -4,6 +4,7 @@ import { ActionBar } from './components/ActionBar/ActionBar';
 import { BulkProgress } from './components/BulkProgress/BulkProgress';
 import { DealTable } from './components/DealTable/DealTable';
 import { FilterBar } from './components/FilterBar/FilterBar';
+import { MoveDialog } from './components/MoveDialog/MoveDialog';
 import { PipelineTabs } from './components/PipelineTabs/PipelineTabs';
 import { SyncStatus } from './components/SyncStatus/SyncStatus';
 import { Toasts } from './components/Toasts/Toasts';
@@ -50,6 +51,7 @@ export function App() {
         </main>
       )}
 
+      <MoveDialog />
       <Toasts />
     </div>
   );

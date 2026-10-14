@@ -45,14 +45,27 @@ export function PipelineTabs() {
     },
   ];
 
+  // Standard tabs keyboard pattern: the whole row is one Tab stop, ←/→ switch tabs.
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    event.preventDefault();
+    const index = tabs.findIndex((tab) => tab.id === activeTab);
+    const step = event.key === 'ArrowRight' ? 1 : -1;
+    const next = tabs[(index + step + tabs.length) % tabs.length];
+    dispatch(updateFilters({ tab: next.id }));
+    document.getElementById(tabElementId(next.id))?.focus();
+  };
+
   return (
-    <nav className={styles.tabs} role="tablist" aria-label="Pipeline views">
+    <nav className={styles.tabs} role="tablist" aria-label="Pipeline views" onKeyDown={handleKeyDown}>
       {tabs.map((tab) => (
         <button
           key={tab.id}
+          id={tabElementId(tab.id)}
           type="button"
           role="tab"
           aria-selected={tab.id === activeTab}
+          tabIndex={tab.id === activeTab ? 0 : -1}
           className={styles.tab}
           data-alert={tab.alert || undefined}
           onClick={() => dispatch(updateFilters({ tab: tab.id }))}
@@ -65,4 +78,8 @@ export function PipelineTabs() {
       ))}
     </nav>
   );
+}
+
+function tabElementId(tab: ViewTab): string {
+  return `view-tab-${tab}`;
 }
