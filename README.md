@@ -52,7 +52,8 @@ src/
 │   │   ├── DealTable/         the virtualized list and its keyboard handling
 │   │   ├── DealRow/           one deal row
 │   │   ├── RowSaveStatus/     Saving… / Not saved (Retry, Discard) / conflict (Keep mine, Keep theirs)
-│   │   └── UpdatesBanner/     "Teammates made changes · Show latest"
+│   │   ├── UpdatesBanner/     "Updates since this list was loaded · Show latest"
+│   │   └── EmptyState/        explains an empty view, offers "Clear filters"
 │   ├── filters/
 │   │   ├── PipelineFilters/   ViewTabs + FilterBar
 │   │   ├── ViewTabs/          stage tabs with counts and values

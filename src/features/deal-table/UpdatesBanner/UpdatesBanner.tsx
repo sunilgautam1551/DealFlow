@@ -6,8 +6,8 @@ import './UpdatesBanner.css';
 /**
  * UpdatesBanner
  *
- * "Teammates made changes: 3 deals now belong here, 13 deals moved out.
- * [Show latest]"
+ * "Updates since this list was loaded: 3 deals now belong here, 13 deals
+ * moved out. [Show latest]"
  *
  * Teammates' edits to rows already on screen show up in place straight away.
  * Changes that would add or remove rows wait here instead, so the list never
@@ -25,7 +25,7 @@ export function UpdatesBanner() {
 
   return (
     <div className="banner" role="status">
-      <span>Teammates made changes: {parts.join(', ')}.</span>
+      <span>Updates since this list was loaded: {parts.join(', ')}.</span>
       <button type="button" onClick={() => dispatch(refreshView())}>
         Show latest
       </button>

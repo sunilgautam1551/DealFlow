@@ -1,4 +1,4 @@
-/* Save status cell: Saving…, Not saved, conflict. */
+/* Save status in the Notes cell: Saving…, Not saved, conflict. */
 
 .status-saving {
   color: var(--muted);
@@ -12,7 +12,15 @@
   color: var(--danger);
 }
 
+/* The message shortens with "…" if space is tight; the buttons always stay visible. */
+.status-text {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .status-problem button {
+  flex-shrink: 0;
   padding: 0 8px;
   font-size: 12px;
   color: var(--text);

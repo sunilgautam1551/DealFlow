@@ -10,7 +10,7 @@ The first tab, **Today**, answers "which deals should I work on today?". It list
 
 ## Key UX decisions
 
-**One way to move one deal or 10,000.** Actions apply to the ticked deals, or to the highlighted row if nothing is ticked. Moving a single deal and moving a whole stage work the same way. Rows can be ticked one by one, as a range with Shift+click, or all at once. For the quarter-end case you filter (e.g. Proposal Sent, no contact for 90+ days), click "Select all", and pick "Lost".
+**One way to move one deal or 10,000.** Actions apply to the ticked deals, or to the highlighted row if nothing is ticked. Moving a single deal and moving a whole stage work the same way. Rows can be ticked one by one, as a range with Shift+click, or all at once. Switching tabs clears the selection, so deals ticked in one view can't be moved by accident from another. For the quarter-end case you filter (e.g. Proposal Sent, no contact for 90+ days), click "Select all", and pick "Lost".
 
 **The list doesn't move under you.** This was the most important decision. The rows on screen are a snapshot, taken when you open a tab or change a filter. When a teammate edits a deal you can see, the row updates in place and flashes briefly. If they move it to another stage, it stays where it is, dimmed, with "Moved to Won by Rahul". New deals and moved deals are counted in a banner ("3 deals now belong here, 13 moved out · Show latest"), and the list only changes when you click it. Tab counts always stay live.
 
@@ -21,7 +21,7 @@ The first tab, **Today**, answers "which deals should I work on today?". It list
 - *Rejected:* waiting for the server before showing the move. That feels broken at this latency.
 - *Rejected:* silently undoing the move when a save fails. That is the "it didn't save and nobody told me" problem.
 
-**Problems wait for you instead of interrupting you.** Failed saves and conflicts get a short toast, a status on the row, and a "Needs attention" tab that lists every one of them. Nothing blocks the screen.
+**Problems wait for you instead of interrupting you.** Failed saves and conflicts get a short toast, a note on the row, and a "Needs attention" tab that lists every one of them, whatever filters are set. Nothing blocks the screen. When a view is empty, for example after moving every matching deal to Lost, it says why and offers "Clear filters".
 
 - *Rejected:* error popups. With bulk moves you could get dozens of them.
 

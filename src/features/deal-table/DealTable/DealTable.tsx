@@ -13,6 +13,7 @@ import {
   toggleFocusedSelection,
 } from '../../../store/viewSlice';
 import { DealRow, rowElementId } from '../DealRow/DealRow';
+import { EmptyState } from '../EmptyState/EmptyState';
 import { UpdatesBanner } from '../UpdatesBanner/UpdatesBanner';
 import './DealTable.css';
 
@@ -74,7 +75,7 @@ export function DealTable() {
     <>
       <UpdatesBanner />
       {ids.length === 0 ? (
-        <div className="table-empty">No deals match this view.</div>
+        <EmptyState />
       ) : (
         <div
           ref={scrollRef}
@@ -107,8 +108,7 @@ export function DealTable() {
             <span role="columnheader">Owner</span>
             <span role="columnheader">Expected close</span>
             <span role="columnheader">Last contact</span>
-            <span role="columnheader">Why it matters</span>
-            <span role="columnheader">Save status</span>
+            <span role="columnheader">Notes</span>
           </div>
 
           <div className="table-body" style={{ height: virtualizer.getTotalSize() }}>

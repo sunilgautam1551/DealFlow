@@ -42,7 +42,9 @@ interface DealRowProps {
  * DealRow
  *
  * One deal in the list: checkbox, company, stage, value, owner, close date,
- * last contact, the reasons it matters, and its save status.
+ * last contact, and a Notes cell with the most important thing about the row:
+ * its save status if it has an unsaved move, otherwise "Moved to … by …" if a
+ * teammate moved it off this tab, otherwise why it matters ("Overdue 3d"…).
  *
  * - Shows the user's unsaved move rather than the server's stage (dashed pill).
  * - Highlights briefly when a teammate changes the deal.
@@ -118,22 +120,19 @@ export const DealRow = memo(function DealRow({ id, rowIndex, top, isFocused }: D
       <span role="gridcell">{deal.ownerId === CURRENT_USER_ID ? 'You' : userName(deal.ownerId)}</span>
       <span role="gridcell">{formatDueIn(deal.expectedCloseAt, now)}</span>
       <span role="gridcell">{formatDaysAgo(deal.lastActivityAt, now)}</span>
-      <span role="gridcell" className="reasons">
-        {reasons.map((reason) => (
-          <span key={reason} className="reason">
-            {reason}
-          </span>
-        ))}
-      </span>
-      <span role="gridcell" className="row-status">
+      <span role="gridcell" className="notes">
         {change ? (
           <RowSaveStatus change={change} />
+        ) : movedAway ? (
+          <span className="muted">
+            Moved to {stageLabel(deal.stage)} by {displayActor(deal.updatedBy)}
+          </span>
         ) : (
-          movedAway && (
-            <span className="muted">
-              Moved to {stageLabel(deal.stage)} by {displayActor(deal.updatedBy)}
+          reasons.map((reason) => (
+            <span key={reason} className="reason">
+              {reason}
             </span>
-          )
+          ))
         )}
       </span>
     </div>

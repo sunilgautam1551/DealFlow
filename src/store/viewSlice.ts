@@ -145,12 +145,12 @@ function filterDeals(deals: Deal[], pending: Record<string, PendingChange>, filt
   const search = filters.search.trim().toLowerCase();
   return deals.filter((deal) => {
     const change = pending[deal.id];
-    if (filters.tab === 'attention') {
-      if (!needsAttention(change)) return false;
-    } else {
-      if (filters.tab === 'today' && deal.ownerId !== CURRENT_USER_ID) return false;
-      if (!stageFitsTab(change?.toStage ?? deal.stage, filters.tab)) return false;
-    }
+    // Needs attention lists *every* unsaved problem, whatever other filters are set,
+    // so "Review" never leads to an empty-looking list.
+    if (filters.tab === 'attention') return needsAttention(change);
+
+    if (filters.tab === 'today' && deal.ownerId !== CURRENT_USER_ID) return false;
+    if (!stageFitsTab(change?.toStage ?? deal.stage, filters.tab)) return false;
     // "Today" is always the current user's deals, so the owner filter doesn't apply there.
     if (filters.tab !== 'today' && filters.ownerId !== 'all' && deal.ownerId !== filters.ownerId) return false;
     if (search && !deal.company.toLowerCase().includes(search)) return false;
@@ -179,6 +179,13 @@ function buildVisibleIds(deals: Deal[], pending: Record<string, PendingChange>, 
 // --- Selectors ------------------------------------------------------------------------
 
 export const selectFilters = (state: RootState) => state.view.filters;
+
+/** True when search, owner or "no contact for" narrow the current tab. */
+export function selectHasNarrowingFilters(state: RootState): boolean {
+  const { tab, search, ownerId, minIdleDays } = state.view.filters;
+  if (tab === 'attention') return false; // ignored there
+  return search.trim() !== '' || (tab !== 'today' && ownerId !== 'all') || minIdleDays > 0;
+}
 export const selectVisibleIds = (state: RootState) => state.view.visibleIds;
 export const selectFocusedId = (state: RootState) => state.view.focusedId;
 export const selectBuiltAt = (state: RootState) => state.view.builtAt;
@@ -235,10 +242,15 @@ export const refreshView = (): AppThunk => (dispatch, getState) => {
   dispatch(visibleIdsReplaced({ ids: buildVisibleIds(selectAllDeals(state), state.sync.pending, state.view.filters, now), builtAt: now }));
 };
 
-/** Changes tab/search/filters/sort. A new view starts at the top. */
+/**
+ * Changes tab/search/filters/sort. A new view starts at the top.
+ * Switching tabs also clears the selection, so deals ticked on one tab can't
+ * be moved by accident from another.
+ */
 export const updateFilters =
   (changes: Partial<ViewFilters>): AppThunk =>
-  (dispatch) => {
+  (dispatch, getState) => {
+    if (changes.tab !== undefined && changes.tab !== getState().view.filters.tab) dispatch(selectionCleared());
     dispatch(filtersChanged(changes));
     dispatch(focusChanged(null));
     dispatch(refreshView());

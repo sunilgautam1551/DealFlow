@@ -21,7 +21,9 @@ const SEARCH_DELAY_MS = 200;
  * owner, "no contact for N+ days" and sort order. Shows how many deals match.
  *
  * Search waits until typing pauses, because each search filters all 50,000
- * deals. The owner filter is disabled on Today, which always shows your deals.
+ * deals. The owner filter is disabled on Today, which always shows your deals,
+ * and search/owner/"no contact" are disabled on Needs attention, which always
+ * lists every unsaved change.
  */
 export function FilterBar() {
   const dispatch = useAppDispatch();
@@ -29,15 +31,23 @@ export function FilterBar() {
   const resultCount = useAppSelector(selectVisibleIds).length;
 
   const [search, setSearch] = useState(filters.search);
+  // Follow changes made elsewhere, e.g. "Clear filters".
+  useEffect(() => setSearch(filters.search), [filters.search]);
   useEffect(() => {
     if (search === filters.search) return;
     const timer = setTimeout(() => dispatch(updateFilters({ search })), SEARCH_DELAY_MS);
     return () => clearTimeout(timer);
   }, [search, filters.search, dispatch]);
 
+  // Needs attention always lists every unsaved problem, so these filters don't apply there.
+  const filtersOff = filters.tab === 'attention';
+  const offTitle = filtersOff ? 'Needs attention always shows every unsaved change' : undefined;
+
   return (
     <div className="toolbar">
       <input
+        disabled={filtersOff}
+        title={offTitle}
         type="search"
         className="search"
         placeholder="Search company…"
@@ -50,8 +60,8 @@ export function FilterBar() {
         Owner
         <select
           value={filters.ownerId}
-          disabled={filters.tab === 'today'}
-          title={filters.tab === 'today' ? 'Today always shows your deals' : undefined}
+          disabled={filters.tab === 'today' || filtersOff}
+          title={filters.tab === 'today' ? 'Today always shows your deals' : offTitle}
           onChange={(event) => dispatch(updateFilters({ ownerId: event.target.value }))}
         >
           <option value="all">Everyone</option>
@@ -66,6 +76,8 @@ export function FilterBar() {
       <label className="field">
         No contact for
         <select
+          disabled={filtersOff}
+          title={offTitle}
           value={filters.minIdleDays}
           onChange={(event) => dispatch(updateFilters({ minIdleDays: Number(event.target.value) }))}
         >

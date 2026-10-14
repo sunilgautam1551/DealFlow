@@ -56,7 +56,7 @@
   border-style: dashed;
 }
 
-.reasons {
+.notes {
   display: flex;
   gap: 4px;
   overflow: hidden;
@@ -68,8 +68,4 @@
   background: var(--warning-soft);
   color: var(--warning);
   font-size: 12px;
-}
-
-.row-status {
-  overflow: hidden;
 }
