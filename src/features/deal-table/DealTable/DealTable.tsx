@@ -2,16 +2,13 @@ import { useVirtualDeals } from '../../../hooks/useVirtualDeals';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import {
   extendSelection,
-  focusEdge,
-  moveFocus,
   openMoveDialog,
   selectAllVisible,
-  selectFocusedId,
   selectionCleared,
   selectSelectedCount,
-  selectVisibleIds,
   toggleFocusedSelection,
-} from '../../../store/viewSlice';
+} from '../../../store/selectionSlice';
+import { focusEdge, moveFocus, selectFocusedId, selectVisibleIds } from '../../../store/viewSlice';
 import { DealRow, rowElementId } from '../DealRow/DealRow';
 import { EmptyState } from '../EmptyState/EmptyState';
 import { UpdatesBanner } from '../UpdatesBanner/UpdatesBanner';

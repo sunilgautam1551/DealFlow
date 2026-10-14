@@ -1,5 +1,6 @@
 import { useAppDispatch } from '../../../store';
-import { discardChanges, MAX_ATTEMPTS, retryChanges, type PendingChange } from '../../../store/syncSlice';
+import { MAX_ATTEMPTS, type PendingChange } from '../../../store/syncSlice';
+import { discardChanges, retryChanges } from '../../../store/syncThunks';
 import { displayActor, stageLabel } from '../../../utils/dealUtils';
 import './RowSaveStatus.css';
 

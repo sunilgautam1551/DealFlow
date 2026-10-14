@@ -1,15 +1,8 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { selectDealById } from '../../../store/dealsSlice';
-import {
-  focusChanged,
-  selectBuiltAt,
-  selectFilters,
-  selectIsSelected,
-  selectRangeTo,
-  stageFitsTab,
-  toggleSelection,
-} from '../../../store/viewSlice';
+import { selectIsSelected, selectRangeTo, toggleSelection } from '../../../store/selectionSlice';
+import { focusChanged, selectBuiltAt, selectFilters, stageFitsTab } from '../../../store/viewSlice';
 import { CURRENT_USER_ID, type Deal } from '../../../types/deal';
 import {
   assessPriority,

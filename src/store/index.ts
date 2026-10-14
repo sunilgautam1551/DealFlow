@@ -2,6 +2,7 @@ import { combineReducers, configureStore, type ThunkAction, type UnknownAction }
 import { setAutoFreeze } from 'immer';
 import { useDispatch, useSelector } from 'react-redux';
 import dealsReducer from './dealsSlice';
+import selectionReducer from './selectionSlice';
 import syncReducer from './syncSlice';
 import uiReducer from './uiSlice';
 import viewReducer from './viewSlice';
@@ -11,8 +12,10 @@ const rootReducer = combineReducers({
   deals: dealsReducer,
   /** The user's unsaved moves, shown on top of `deals`. */
   sync: syncReducer,
-  /** Tab, filters, rows on screen, focus, selection. */
+  /** Tab, filters, rows on screen, focus. */
   view: viewReducer,
+  /** Ticked rows and the actions on them. */
+  selection: selectionReducer,
   /** Dialog, toasts, simulator settings. */
   ui: uiReducer,
 });

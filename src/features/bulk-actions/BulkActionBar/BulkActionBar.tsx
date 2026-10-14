@@ -1,17 +1,16 @@
 import { useAppDispatch, useAppSelector } from '../../../store';
 import { selectDealById } from '../../../store/dealsSlice';
-import { needsAttention } from '../../../store/syncSlice';
 import {
   discardTargets,
   moveTargetsTo,
   retryTargets,
   selectActionTargets,
   selectAllVisible,
-  selectFocusedId,
   selectionCleared,
   selectSelectedCount,
-  selectVisibleIds,
-} from '../../../store/viewSlice';
+} from '../../../store/selectionSlice';
+import { needsAttention } from '../../../store/syncSlice';
+import { selectFocusedId, selectVisibleIds } from '../../../store/viewSlice';
 import { STAGES, type StageId } from '../../../types/deal';
 import { formatNumber, pluralize } from '../../../utils/dealUtils';
 import { BulkProgress } from '../BulkProgress/BulkProgress';

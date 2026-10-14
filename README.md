@@ -70,8 +70,10 @@ src/
 ├── store/
 │   ├── index.ts               store setup and typed hooks
 │   ├── dealsSlice.ts          deals as the server last reported them, realtime feed
-│   ├── syncSlice.ts           unsaved moves: batching, retries, conflicts
-│   ├── viewSlice.ts           tabs, filters, sorting, rows on screen, focus, selection
+│   ├── syncSlice.ts           unsaved moves and their status (saving, failed, conflict)
+│   ├── syncThunks.ts          the save engine: batching, automatic retries, messages
+│   ├── viewSlice.ts           tab, filters, sorting, rows on screen, keyboard focus
+│   ├── selectionSlice.ts      ticked rows and the actions on them (move, retry, discard)
 │   └── uiSlice.ts             dialog, toasts, simulator settings
 ├── services/fakeApi.ts        the fake backend (latency, failures, conflicts, teammates)
 ├── hooks/useVirtualDeals.ts   virtualization for the deal list
@@ -88,6 +90,6 @@ Built with React 18, TypeScript, Redux Toolkit, @tanstack/react-virtual and Vite
 
 Good places to start reading:
 
-- `src/store/syncSlice.ts`: how saving, retries and conflicts work, explained at the top of the file.
+- `src/store/syncSlice.ts`: how saving, retries and conflicts work, explained at the top of the file (the sending itself is in `syncThunks.ts`).
 - `src/store/viewSlice.ts`: why the list on screen is a snapshot.
 - `src/services/fakeApi.ts`: what the fake backend simulates.

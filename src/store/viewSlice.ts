@@ -4,20 +4,12 @@ import { CURRENT_USER_ID, STAGES, type Deal, type StageId } from '../types/deal'
 import { assessPriority, DAY_MS, isClosedStage } from '../utils/dealUtils';
 import { loadDeals, pipelineReset, selectAllDeals } from './dealsSlice';
 import type { AppThunk, RootState } from './index';
-import {
-  changesQueued,
-  discardChanges,
-  moveDeals,
-  needsAttention,
-  retryChanges,
-  selectPending,
-  type PendingChange,
-} from './syncSlice';
-import { dealCountChanged, moveDialogToggled } from './uiSlice';
+import { changesQueued, needsAttention, selectPending, type PendingChange } from './syncSlice';
+import { dealCountChanged } from './uiSlice';
 
 /**
- * What the user is looking at: tab, filters, sort, the rows on screen, the
- * focused row and the ticked rows.
+ * What the user is looking at: tab, filters, sort, the rows on screen and the
+ * focused row. (Ticked rows live in `selectionSlice`.)
  */
 
 /** "today" = my open deals by priority, "attention" = failed/conflicted saves, or a stage. */
@@ -45,10 +37,6 @@ interface ViewState {
   /** When `visibleIds` was built. Used as "now" for priority and dates. */
   builtAt: number;
   focusedId: string | null;
-  /** Ticked rows. A Record so "is this row ticked?" is instant. */
-  selectedIds: Record<string, true>;
-  /** Last row ticked without Shift: the start of a Shift+click range. */
-  anchorId: string | null;
 }
 
 const initialState: ViewState = {
@@ -56,8 +44,6 @@ const initialState: ViewState = {
   visibleIds: [],
   builtAt: Date.now(),
   focusedId: null,
-  selectedIds: {},
-  anchorId: null,
 };
 
 const viewSlice = createSlice({
@@ -73,33 +59,10 @@ const viewSlice = createSlice({
       state.visibleIds = ids;
       state.builtAt = builtAt;
       if (!state.focusedId || !ids.includes(state.focusedId)) state.focusedId = ids[0] ?? null;
-
-      // Never keep hidden deals ticked: a bulk action must only touch what the user can see.
-      const visible = new Set(ids);
-      for (const id of Object.keys(state.selectedIds)) {
-        if (!visible.has(id)) delete state.selectedIds[id];
-      }
-      if (state.anchorId && !visible.has(state.anchorId)) state.anchorId = null;
     },
 
     focusChanged(state, action: PayloadAction<string | null>) {
       state.focusedId = action.payload;
-    },
-
-    selectionToggled(state, action: PayloadAction<string>) {
-      const id = action.payload;
-      if (state.selectedIds[id]) delete state.selectedIds[id];
-      else state.selectedIds[id] = true;
-      state.anchorId = id;
-    },
-
-    selectionAdded(state, action: PayloadAction<string[]>) {
-      for (const id of action.payload) state.selectedIds[id] = true;
-    },
-
-    selectionCleared(state) {
-      state.selectedIds = {};
-      state.anchorId = null;
     },
   },
   extraReducers: (builder) => {
@@ -124,8 +87,7 @@ const viewSlice = createSlice({
   },
 });
 
-export const { focusChanged, selectionToggled, selectionCleared } = viewSlice.actions;
-const { filtersChanged, visibleIdsReplaced, selectionAdded } = viewSlice.actions;
+export const { filtersChanged, visibleIdsReplaced, focusChanged } = viewSlice.actions;
 export default viewSlice.reducer;
 
 // --- Which deals belong in the view -------------------------------------------------
@@ -189,15 +151,6 @@ export function selectHasNarrowingFilters(state: RootState): boolean {
 export const selectVisibleIds = (state: RootState) => state.view.visibleIds;
 export const selectFocusedId = (state: RootState) => state.view.focusedId;
 export const selectBuiltAt = (state: RootState) => state.view.builtAt;
-export const selectIsSelected = (state: RootState, id: string) => state.view.selectedIds[id] === true;
-export const selectSelectedCount = (state: RootState) => Object.keys(state.view.selectedIds).length;
-
-/** Deals an action applies to: the ticked ones, or else the focused row. */
-export function selectActionTargets(state: RootState): string[] {
-  const selected = Object.keys(state.view.selectedIds);
-  if (selected.length > 0) return selected;
-  return state.view.focusedId ? [state.view.focusedId] : [];
-}
 
 /** Live counts and values for the tab headers, by the stage the user sees. */
 export const selectTabCounts = createSelector([selectAllDeals, selectPending], (deals, pending) => {
@@ -244,13 +197,11 @@ export const refreshView = (): AppThunk => (dispatch, getState) => {
 
 /**
  * Changes tab/search/filters/sort. A new view starts at the top.
- * Switching tabs also clears the selection, so deals ticked on one tab can't
- * be moved by accident from another.
+ * (Changing tab also clears the ticked rows; see `selectionSlice`.)
  */
 export const updateFilters =
   (changes: Partial<ViewFilters>): AppThunk =>
-  (dispatch, getState) => {
-    if (changes.tab !== undefined && changes.tab !== getState().view.filters.tab) dispatch(selectionCleared());
+  (dispatch) => {
     dispatch(filtersChanged(changes));
     dispatch(focusChanged(null));
     dispatch(refreshView());
@@ -273,7 +224,7 @@ export const regenerateDeals =
     await dispatch(loadPipeline());
   };
 
-// --- Focus and selection (mouse and keyboard) -----------------------------------------------
+// --- Keyboard focus ------------------------------------------------------------------------
 
 /** ↑/↓: move focus, stopping at the ends. */
 export const moveFocus =
@@ -292,76 +243,3 @@ export const focusEdge =
     const { visibleIds } = getState().view;
     if (visibleIds.length > 0) dispatch(focusChanged(edge === 'first' ? visibleIds[0] : visibleIds[visibleIds.length - 1]));
   };
-
-/** Click a checkbox: tick/untick one deal. */
-export const toggleSelection =
-  (id: string): AppThunk =>
-  (dispatch) => {
-    dispatch(selectionToggled(id));
-    dispatch(focusChanged(id));
-  };
-
-/** Shift+click: tick every row between the last ticked (or else the focused) row and this one. */
-export const selectRangeTo =
-  (id: string): AppThunk =>
-  (dispatch, getState) => {
-    const { visibleIds, anchorId, focusedId } = getState().view;
-    const start = anchorId ?? focusedId;
-    const from = start ? visibleIds.indexOf(start) : -1;
-    const to = visibleIds.indexOf(id);
-    if (from === -1 || to === -1) {
-      dispatch(toggleSelection(id));
-      return;
-    }
-    dispatch(selectionAdded(visibleIds.slice(Math.min(from, to), Math.max(from, to) + 1)));
-    dispatch(focusChanged(id));
-  };
-
-/** Shift+↑/↓: tick the focused row and the next one, and move focus there. */
-export const extendSelection =
-  (delta: number): AppThunk =>
-  (dispatch, getState) => {
-    const startId = getState().view.focusedId;
-    if (!startId) return;
-    dispatch(selectionAdded([startId]));
-    dispatch(moveFocus(delta));
-    const endId = getState().view.focusedId;
-    if (endId) dispatch(selectionAdded([endId]));
-  };
-
-/** Space: tick/untick the focused row. */
-export const toggleFocusedSelection = (): AppThunk => (dispatch, getState) => {
-  const { focusedId } = getState().view;
-  if (focusedId) dispatch(selectionToggled(focusedId));
-};
-
-/** Tick every row in the view (e.g. all 10,000 in a stage). */
-export const selectAllVisible = (): AppThunk => (dispatch, getState) => {
-  dispatch(selectionAdded(getState().view.visibleIds));
-};
-
-// --- Actions on the ticked deals (or the focused row) -------------------------------------
-
-export const moveTargetsTo =
-  (toStage: StageId): AppThunk =>
-  (dispatch, getState) => {
-    const targets = selectActionTargets(getState());
-    if (targets.length === 0 || !STAGES.some((stage) => stage.id === toStage)) return;
-    dispatch(moveDeals(targets, toStage));
-    dispatch(selectionCleared());
-  };
-
-/** Retry failed saves / keep my version of conflicts. */
-export const retryTargets = (): AppThunk => (dispatch, getState) => {
-  dispatch(retryChanges(selectActionTargets(getState())));
-};
-
-/** Discard failed saves / keep the teammate's version. */
-export const discardTargets = (): AppThunk => (dispatch, getState) => {
-  dispatch(discardChanges(selectActionTargets(getState())));
-};
-
-/** Enter: open "Move to…", if there's anything to move. */
-export const openMoveDialog = (): AppThunk => (dispatch, getState) => {
-  if (selectActionTargets(getState()).length > 0) dispatch(moveDialogToggled(true));
-};

@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store';
+import { moveTargetsTo, selectActionTargets } from '../../../store/selectionSlice';
 import { selectEffectiveStage } from '../../../store/syncSlice';
 import { moveDialogToggled } from '../../../store/uiSlice';
-import { moveTargetsTo, selectActionTargets } from '../../../store/viewSlice';
 import { STAGES } from '../../../types/deal';
 import { nextStage, pluralize, STAGE_IDS } from '../../../utils/dealUtils';
 import './MoveDialog.css';
