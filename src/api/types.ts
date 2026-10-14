@@ -76,6 +76,9 @@ export const DEFAULT_SIMULATION_CONFIG: SimulationConfig = {
   raceChance: 0.01,
 };
 
+/** Number of deals generated on startup (the brief's scale). */
+export const DEFAULT_DEAL_COUNT = 50_000;
+
 /** Controls only the simulator UI uses. A real backend would not have these. */
 export interface SimulatorControls {
   configure(config: SimulationConfig): void;

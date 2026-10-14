@@ -1,5 +1,6 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 import type { MoveResult } from '../../api/types';
+import { pipelineReset } from '../../app/actions';
 import type { StageId } from '../../domain/stages';
 
 /**
@@ -200,6 +201,9 @@ const syncSlice = createSlice({
     jobFinished(state, action: PayloadAction<string>) {
       state.jobs = state.jobs.filter((job) => job.id !== action.payload);
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(pipelineReset, () => initialState);
   },
 });
 

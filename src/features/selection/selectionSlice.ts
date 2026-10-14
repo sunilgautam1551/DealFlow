@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { pipelineReset } from '../../app/actions';
 import type { RootState } from '../../app/rootReducer';
 import { visibleIdsReplaced } from '../view/viewSlice';
 
@@ -38,6 +39,7 @@ const selectionSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
+    builder.addCase(pipelineReset, () => initialState);
     // Never keep hidden deals selected: a bulk action must only touch what the user can see.
     builder.addCase(visibleIdsReplaced, (state, action) => {
       const visible = new Set(action.payload.ids);

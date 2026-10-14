@@ -2,6 +2,7 @@ import { combineReducers } from '@reduxjs/toolkit';
 import dealsReducer from '../features/deals/dealsSlice';
 import notificationsReducer from '../features/notifications/notificationsSlice';
 import selectionReducer from '../features/selection/selectionSlice';
+import simulatorReducer from '../features/simulator/simulatorSlice';
 import syncReducer from '../features/sync/syncSlice';
 import uiReducer from '../features/ui/uiSlice';
 import viewReducer from '../features/view/viewSlice';
@@ -19,6 +20,8 @@ export const rootReducer = combineReducers({
   selection: selectionReducer,
   notifications: notificationsReducer,
   ui: uiReducer,
+  /** Settings of the fake backend (simulator panel). */
+  simulator: simulatorReducer,
 });
 
 export type RootState = ReturnType<typeof rootReducer>;

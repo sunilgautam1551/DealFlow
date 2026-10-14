@@ -1,4 +1,5 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
+import { pipelineReset } from '../../app/actions';
 import type { RootState } from '../../app/rootReducer';
 
 /**
@@ -35,6 +36,11 @@ const notificationsSlice = createSlice({
     toastDismissed(state, action: PayloadAction<string>) {
       state.toasts = state.toasts.filter((toast) => toast.id !== action.payload);
     },
+  },
+  extraReducers: (builder) => {
+    builder.addCase(pipelineReset, (state) => {
+      state.toasts = [];
+    });
   },
 });
 

@@ -7,6 +7,7 @@ import {
 } from '@reduxjs/toolkit';
 import type { ThunkExtra } from '../../app/dependencies';
 import type { RootState } from '../../app/rootReducer';
+import { pipelineReset } from '../../app/actions';
 import type { Deal } from '../../domain/deal';
 import { batchSucceeded } from '../sync/syncSlice';
 
@@ -64,6 +65,10 @@ const dealsSlice = createSlice({
         });
         dealsAdapter.setAll(state, deals);
         state.loadStatus = 'ready';
+      })
+      .addCase(pipelineReset, (state) => {
+        dealsAdapter.removeAll(state);
+        state.loadStatus = 'idle';
       })
       .addCase(loadDeals.rejected, (state) => {
         state.loadStatus = 'failed';

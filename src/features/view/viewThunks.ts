@@ -11,11 +11,15 @@ export const refreshView = (): AppThunk => (dispatch, getState) => {
   dispatch(visibleIdsReplaced({ ids, builtAt: now }));
 };
 
-/** Changes tab/search/filters/sort and shows the result straight away. */
+/**
+ * Changes tab/search/filters/sort and shows the result straight away.
+ * A new view starts at the top; only a plain refresh keeps the user's place.
+ */
 export const updateFilters =
   (changes: Partial<ViewFilters>): AppThunk =>
   (dispatch) => {
     dispatch(filtersChanged(changes));
+    dispatch(focusChanged(null));
     dispatch(refreshView());
   };
 
