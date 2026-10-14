@@ -1,4 +1,5 @@
 import { configureStore, type ThunkAction, type UnknownAction } from '@reduxjs/toolkit';
+import type { ThunkExtra } from './dependencies';
 import { rootReducer, type RootState } from './rootReducer';
 
 /**
@@ -7,11 +8,12 @@ import { rootReducer, type RootState } from './rootReducer';
  * It is a factory (not a module-level singleton) so tests can build an
  * isolated store with their own dependencies.
  */
-export function createAppStore() {
+export function createAppStore(extra: ThunkExtra) {
   return configureStore({
     reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
+        thunk: { extraArgument: extra },
         // RTK's dev-only invariant checks walk the *entire* state tree after
         // every action. With 50,000 deals in state that makes every keypress
         // take hundreds of milliseconds, so they are switched off.
@@ -26,4 +28,4 @@ export type AppDispatch = AppStore['dispatch'];
 export type { RootState };
 
 /** Signature for hand-written thunks (multi-step logic that reads state). */
-export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, unknown, UnknownAction>;
+export type AppThunk<ReturnType = void> = ThunkAction<ReturnType, RootState, ThunkExtra, UnknownAction>;
