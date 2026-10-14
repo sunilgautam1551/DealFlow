@@ -1,0 +1,19 @@
+/* Save status cell: Saving…, Not saved, conflict. */
+
+.status-saving {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.status-problem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--danger);
+}
+
+.status-problem button {
+  padding: 0 8px;
+  font-size: 12px;
+  color: var(--text);
+}

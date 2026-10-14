@@ -1,0 +1,10 @@
+/* Action bar for ticked deals. */
+
+.action-target {
+  min-width: 200px;
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}

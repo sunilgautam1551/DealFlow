@@ -1,0 +1,44 @@
+/* Stage tabs with counts. */
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 16px 0;
+  overflow-x: auto;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 12px;
+  border: none;
+  border-bottom: 3px solid transparent;
+  border-radius: 0;
+  background: none;
+  white-space: nowrap;
+}
+
+.tab[aria-selected='true'] {
+  border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+
+.tab-count,
+.tab-detail {
+  color: var(--muted);
+  font-weight: normal;
+}
+
+.tab-detail {
+  font-size: 12px;
+}
+
+.tab[data-alert],
+.tab[data-alert] .tab-count {
+  color: var(--danger);
+  font-weight: 600;
+}

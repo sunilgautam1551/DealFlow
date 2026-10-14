@@ -1,0 +1,18 @@
+/* Header save indicator. */
+
+.save-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.save-ok {
+  color: var(--success);
+}
+
+.save-problem {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
+  font-weight: 600;
+}

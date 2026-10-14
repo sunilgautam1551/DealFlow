@@ -1,0 +1,15 @@
+/* Search box and filter dropdowns. */
+
+.search {
+  width: 240px;
+  padding: 4px 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+}

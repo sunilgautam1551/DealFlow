@@ -1,0 +1,53 @@
+/* The deal list. Header and rows share one column layout. */
+
+.table {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: var(--surface);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 24px minmax(220px, 2fr) 120px 110px 140px 120px 110px minmax(180px, 1.3fr) minmax(260px, 1.5fr);
+  align-items: center;
+  gap: 12px;
+  height: 44px;
+  min-width: 1450px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.row-header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--bg);
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.table-body {
+  position: relative;
+}
+
+.table-body .row {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+}
+
+.table-body .row:hover,
+.row[data-selected] {
+  background: var(--accent-soft);
+}
+
+.row[data-focused] {
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+}

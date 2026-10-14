@@ -10,7 +10,7 @@ The first tab, **Today**, answers "which deals should I work on today?". It list
 
 ## Key UX decisions
 
-**One way to move one deal or 10,000.** Actions apply to the ticked deals, or to the highlighted row if nothing is ticked. Moving a single deal and moving a whole stage work the same way. For the quarter-end case you filter (e.g. Proposal Sent, no contact for 90+ days), click "Select all", and pick "Lost".
+**One way to move one deal or 10,000.** Actions apply to the ticked deals, or to the highlighted row if nothing is ticked. Moving a single deal and moving a whole stage work the same way. Rows can be ticked one by one, as a range with Shift+click, or all at once. For the quarter-end case you filter (e.g. Proposal Sent, no contact for 90+ days), click "Select all", and pick "Lost".
 
 **The list doesn't move under you.** This was the most important decision. The rows on screen are a snapshot, taken when you open a tab or change a filter. When a teammate edits a deal you can see, the row updates in place and flashes briefly. If they move it to another stage, it stays where it is, dimmed, with "Moved to Won by Rahul". New deals and moved deals are counted in a banner ("3 deals now belong here, 13 moved out · Show latest"), and the list only changes when you click it. Tab counts always stay live.
 
@@ -41,19 +41,24 @@ One tricky case is a save that reaches the server but whose reply is lost, so th
 
 ## Performance with 50,000 deals
 
-Only the rows on screen are rendered (around 30 at a time), and each row re-renders only when its own deal changes. Filtering and sorting all 50,000 deals takes about 40ms, and selecting a whole 10,000-deal stage about 30ms.
+Only the rows on screen are rendered (about 35 at a time), and each row re-renders only when its own deal changes. Measured in Chrome on my laptop: the first screen appears about 1.5 seconds after opening, scrolling through 50,000 deals stays at 60 frames per second, filtering and sorting all of them takes about 40ms, and ticking all 50,000 takes about 40ms.
 
-Early on, every realtime update froze the page for about 75ms. Two things caused it: deal ids like `d-000123` made copying the big lookup object slow, and Immer (used by Redux Toolkit) was freezing that object after every update. Plain numeric ids and turning the freezing off brought an update down to about 16ms.
+Early on, every realtime update froze the page for about 75ms. Two things caused it: deal ids like `d-000123` made copying the big lookup object slow, and Immer (used by Redux Toolkit) was freezing that object after every update. Plain numeric ids and turning the freezing off brought an update down to about 15ms.
 
 ## Limitations
 
-- There are no automated tests. I checked behaviour by scripting the fake server (1,000 deals moved at a 50% failure rate all ended up saved) and by driving the app in a headless browser.
+- There are no automated tests. I checked behaviour with throwaway scripts: driving the fake server directly (2,000 moves at the default settings with teammates active: 1,975 saved, 25 flagged as conflicts, none lost or stuck) and clicking through the app in a headless browser.
 - Unsaved changes live in memory, so a reload loses them. The app warns first.
 - You can only move deals between stages; editing other fields is out of scope. Search only matches company names.
-- At the default network speed, a 10,000-deal bulk move takes several seconds to save. A progress bar shows it.
+- At the default network speed, a 10,000-deal bulk move takes several seconds to save (1,265 deals took 1.4 seconds). A progress bar shows it.
+- Searching across all 50,000 deals, and each batch of a big bulk save, briefly blocks the page for about 50ms. You can't really feel it, but it's there.
 
 ## What I'd do with more time
 
 - Keep unsaved changes in IndexedDB, so a reload or crash doesn't lose them.
 - Add undo, especially for bulk moves.
 - Let the server "move everything matching this filter" in one request instead of receiving 10,000 ids, and page and filter on the server instead of loading every deal.
+- Move filtering and sorting off the main thread (a Web Worker) to remove the ~50ms pauses.
+- Add tests around the save and retry logic, where bugs would hurt most.
+- Show who else is looking at a deal, to head off some conflicts.
+- Let people tune how "Today" ranks deals, and test with keyboard and screen reader users.

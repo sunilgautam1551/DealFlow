@@ -1,12 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
+// Base styles first, so each component's CSS builds on top of them.
+import './index.css';
 import { App } from './App';
-import { fakeServer } from './api';
-import { createAppStore } from './app/store';
-import './styles/global.css';
-
-const store = createAppStore({ api: fakeServer, simulator: fakeServer });
+import { store } from './store';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

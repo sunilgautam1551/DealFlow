@@ -1,0 +1,75 @@
+/* Cells inside a deal row. */
+
+/* A teammate just changed this deal. */
+.row[data-flash] {
+  animation: flash 2s ease-out;
+}
+
+@keyframes flash {
+  from {
+    background: var(--warning-soft);
+  }
+}
+
+/* No longer belongs in this view; kept until the user refreshes. */
+.row[data-moved-away] > :not(:last-child) {
+  opacity: 0.45;
+}
+
+.company {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  line-height: 1.2;
+}
+
+.company .muted {
+  font-size: 12px;
+}
+
+.company-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.stage {
+  padding: 2px 8px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  font-size: 12px;
+}
+
+.stage[data-stage='won'] {
+  border-color: var(--success);
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.stage[data-stage='lost'] {
+  color: var(--muted);
+}
+
+/* Not confirmed by the server yet. */
+.stage[data-unsaved] {
+  border-style: dashed;
+}
+
+.reasons {
+  display: flex;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.reason {
+  padding: 1px 8px;
+  border-radius: var(--radius);
+  background: var(--warning-soft);
+  color: var(--warning);
+  font-size: 12px;
+}
+
+.row-status {
+  overflow: hidden;
+}

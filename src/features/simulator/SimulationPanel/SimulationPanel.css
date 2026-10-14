@@ -1,0 +1,59 @@
+/* Simulator side panel. */
+
+.sim-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 15;
+  width: 320px;
+  padding: 16px;
+  overflow-y: auto;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.08);
+}
+
+.sim-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sim-header h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.sim-panel section {
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+.sim-panel h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+}
+
+.sim-presets,
+.sim-dataset {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sim-dataset select {
+  flex: 1;
+}
+
+.sim-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.sim-slider-label {
+  display: flex;
+  justify-content: space-between;
+}
