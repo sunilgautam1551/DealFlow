@@ -1,0 +1,31 @@
+{
+  "name": "dealflow",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Sales pipeline manager for large, shared, real-time deal lists.",
+  "scripts": {
+    "prestart": "npm install --no-audit --no-fund",
+    "start": "vite --open",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.2.7",
+    "@tanstack/react-virtual": "^3.10.8",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-redux": "^9.1.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.2",
+    "typescript": "~5.6.3",
+    "vite": "^5.4.8",
+    "vitest": "^2.1.3"
+  }
+}
