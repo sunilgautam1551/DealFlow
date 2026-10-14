@@ -1,0 +1,116 @@
+.scroller {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: var(--color-surface);
+}
+
+/* Header and rows share one column layout. */
+.row {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) 130px 120px 150px 110px 100px minmax(200px, 1.5fr);
+  align-items: center;
+  gap: var(--space-3);
+  height: 44px;
+  min-width: 1100px;
+  padding: 0 var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  white-space: nowrap;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.body {
+  position: relative;
+}
+
+.body .row {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  cursor: default;
+}
+
+.body .row:hover {
+  background: var(--color-bg);
+}
+
+.row[data-focused] {
+  background: var(--color-accent-soft);
+  box-shadow: inset 3px 0 0 var(--color-accent);
+}
+
+.numeric {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.company {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  line-height: 1.2;
+}
+
+.companyName {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 500;
+}
+
+.muted {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.stage {
+  display: inline-block;
+  padding: 2px var(--space-2);
+  border-radius: 999px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+}
+
+.stage[data-stage='won'] {
+  background: var(--color-success-soft);
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.stage[data-stage='lost'] {
+  color: var(--color-text-muted);
+}
+
+.reasons {
+  display: flex;
+  gap: var(--space-1);
+  overflow: hidden;
+}
+
+.reason {
+  padding: 1px var(--space-2);
+  border-radius: var(--radius);
+  background: var(--color-warning-soft);
+  color: var(--color-warning);
+  font-size: var(--font-size-sm);
+}
+
+.empty {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+}

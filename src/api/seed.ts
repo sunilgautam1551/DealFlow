@@ -1,5 +1,6 @@
 import type { Deal } from '../domain/deal';
 import type { StageId } from '../domain/stages';
+import { DAY_MS } from '../domain/time';
 import { USERS } from '../domain/users';
 import { createSeededRandom, pickOne, pickWeighted, randomInt, type RandomSource } from './random';
 
@@ -7,8 +8,6 @@ import { createSeededRandom, pickOne, pickWeighted, randomInt, type RandomSource
  * Generates a realistic-looking pipeline. With 50,000 deals the distribution
  * below puts ~10,000 deals in New Lead and Contacted, as in the brief.
  */
-
-const DAY_MS = 24 * 60 * 60 * 1000;
 
 const STAGE_WEIGHTS: readonly (readonly [StageId, number])[] = [
   ['new', 20],
@@ -49,7 +48,8 @@ export function generateDeal(
   const licences = 5 + Math.floor(random() ** 2 * 495);
   const pricePerLicence = randomInt(random, 12, 28) * 500; // ₹6,000 – ₹14,000
   const ownerId = pickOne(random, USERS).id;
-  const lastActivityAt = now - Math.floor(random() ** 1.5 * 180 * DAY_MS);
+  // Cubing the roll makes recent activity common and long silences rare.
+  const lastActivityAt = now - Math.floor(random() ** 3 * 180 * DAY_MS);
 
   return {
     id: formatDealId(index),

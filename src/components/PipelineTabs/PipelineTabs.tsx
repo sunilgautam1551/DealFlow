@@ -1,0 +1,56 @@
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
+import { formatCompactCurrency, formatNumber } from '../../domain/format';
+import { STAGES } from '../../domain/stages';
+import { selectFilters, selectTabCounts } from '../../features/view/viewSelectors';
+import type { ViewTab } from '../../features/view/viewSlice';
+import { updateFilters } from '../../features/view/viewThunks';
+import styles from './PipelineTabs.module.css';
+
+interface TabItem {
+  id: ViewTab;
+  label: string;
+  count: number;
+  /** Optional second line, e.g. the stage's total value. */
+  detail?: string;
+}
+
+/**
+ * One tab per stage plus "Today" and "All". Each stage tab shows its deal
+ * count and value, so the tab row doubles as a pipeline overview.
+ */
+export function PipelineTabs() {
+  const dispatch = useAppDispatch();
+  const activeTab = useAppSelector(selectFilters).tab;
+  const counts = useAppSelector(selectTabCounts);
+
+  const tabs: TabItem[] = [
+    { id: 'today', label: 'Today', count: counts.today, detail: 'My priorities' },
+    ...STAGES.map((stage) => ({
+      id: stage.id,
+      label: stage.label,
+      count: counts.byStage[stage.id].count,
+      detail: formatCompactCurrency(counts.byStage[stage.id].value),
+    })),
+    { id: 'all', label: 'All deals', count: counts.all },
+  ];
+
+  return (
+    <nav className={styles.tabs} role="tablist" aria-label="Pipeline views">
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          type="button"
+          role="tab"
+          aria-selected={tab.id === activeTab}
+          className={styles.tab}
+          onClick={() => dispatch(updateFilters({ tab: tab.id }))}
+        >
+          <span className={styles.label}>
+            {tab.label} <span className={styles.count}>{formatNumber(tab.count)}</span>
+          </span>
+          {tab.detail && <span className={styles.detail}>{tab.detail}</span>}
+        </button>
+      ))}
+    </nav>
+  );
+}
